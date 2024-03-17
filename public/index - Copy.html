@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Mesh Network</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<style>
+  body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  canvas { display: block; margin: auto; }
+</style>
+</head>
+<body>
+<script>
+// This script uses p5.js to create an animated mesh network
+
+let points = [];
+let velocities = [];
+let maxPointCount = 300;
+let maxDistance = 100;
+let edgeBuffer = 10; // Distance from the edge where points start to "bounce" back
+let speedRange = {min: -0.25, max: 0.25}; // Adjust the speed range for variation
+
+function setup() {
+  // Center the canvas
+  let cnv = createCanvas(windowWidth * 0.9, windowHeight * 0.9); // Adjust size for centering
+  cnv.style('display', 'block');
+  cnv.style('margin', 'auto');
+  for (let i = 0; i < maxPointCount; i++) {
+    points.push(createVector(random(width), random(height)));
+    velocities.push(createVector(random(speedRange.min, speedRange.max), random(speedRange.min, speedRange.max)));
+  }
+  noFill();
+  stroke(0, 50);
+}
+
+function draw() {
+  background(255);
+
+  // Update points
+  for (let i = 0; i < points.length; i++) {
+    let p = points[i];
+    let v = velocities[i];
+
+    // Adjust direction if near edge
+    if(p.x < edgeBuffer || p.x > width - edgeBuffer) {
+      v.x = -v.x;
+    }
+    if(p.y < edgeBuffer || p.y > height - edgeBuffer) {
+      v.y = -v.y;
+    }
+
+    // Update position
+    p.add(v);
+
+    // Keep within bounds
+    p.x = constrain(p.x, 0, width);
+    p.y = constrain(p.y, 0, height);
+  }
+
+  // Draw lines
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      let distance = dist(points[i].x, points[i].y, points[j].x, points[j].y);
+      if (distance < maxDistance) {
+        strokeWeight(map(distance, 0, maxDistance, 1, 1));
+        line(points[i].x, points[i].y, points[j].x, points[j].y);
+      }
+    }
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth * 0.8, windowHeight * 0.8);
+}
+
+</script>
+<p>Test</p>
+</body>
+</html>
